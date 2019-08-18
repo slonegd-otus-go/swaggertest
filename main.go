@@ -8,6 +8,8 @@ package main
 import (
 	"log"
 	"os"
+	"fmt"
+	"time"
 
 	"github.com/alexflint/go-arg"
 
@@ -51,6 +53,12 @@ func main() {
 		func(params operations.GetHostnameParams) middleware.Responder {
 			response, _ := os.Hostname()
 			return operations.NewGetHostnameOK().WithPayload(response)
+		})
+
+	api.GetTimeHandler = operations.GetTimeHandlerFunc(
+		func(params operations.GetTimeParams) middleware.Responder {
+			response := fmt.Sprintf("текущее время: %s\n", time.Now())
+			return operations.NewGetTimeOK().WithPayload(response)
 		})
 
 	// Start listening using having the handlers and port

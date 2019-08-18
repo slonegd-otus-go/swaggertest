@@ -40,6 +40,9 @@ func NewHelloAPI(spec *loads.Document) *HelloAPI {
 		GetHostnameHandler: GetHostnameHandlerFunc(func(params GetHostnameParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetHostname has not yet been implemented")
 		}),
+		GetTimeHandler: GetTimeHandlerFunc(func(params GetTimeParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetTime has not yet been implemented")
+		}),
 	}
 }
 
@@ -73,6 +76,8 @@ type HelloAPI struct {
 
 	// GetHostnameHandler sets the operation handler for the get hostname operation
 	GetHostnameHandler GetHostnameHandler
+	// GetTimeHandler sets the operation handler for the get time operation
+	GetTimeHandler GetTimeHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -138,6 +143,10 @@ func (o *HelloAPI) Validate() error {
 
 	if o.GetHostnameHandler == nil {
 		unregistered = append(unregistered, "GetHostnameHandler")
+	}
+
+	if o.GetTimeHandler == nil {
+		unregistered = append(unregistered, "GetTimeHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -242,6 +251,11 @@ func (o *HelloAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/hostname"] = NewGetHostname(o.context, o.GetHostnameHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/time"] = NewGetTime(o.context, o.GetTimeHandler)
 
 }
 

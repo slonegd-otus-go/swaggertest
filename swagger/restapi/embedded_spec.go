@@ -40,6 +40,23 @@ func init() {
           }
         }
       }
+    },
+    "/time": {
+      "get": {
+        "produces": [
+          "text/plain"
+        ],
+        "operationId": "getTime",
+        "responses": {
+          "200": {
+            "description": "returns the time of the machine",
+            "schema": {
+              "description": "the time of the machine",
+              "type": "string"
+            }
+          }
+        }
+      }
     }
   }
 }`))
@@ -61,6 +78,23 @@ func init() {
             "description": "returns the hostname of the machine",
             "schema": {
               "description": "the hostname of the machine",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/time": {
+      "get": {
+        "produces": [
+          "text/plain"
+        ],
+        "operationId": "getTime",
+        "responses": {
+          "200": {
+            "description": "returns the time of the machine",
+            "schema": {
+              "description": "the time of the machine",
               "type": "string"
             }
           }
