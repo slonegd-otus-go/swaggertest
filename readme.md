@@ -1,0 +1,1 @@
+https://ops.tips/blog/a-swagger-golang-hello-world/
