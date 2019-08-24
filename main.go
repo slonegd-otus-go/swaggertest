@@ -1,17 +1,17 @@
-// main declares the CLI that spins up the server of
-// our API.
-// It takes some arguments, validates if they're valid
-// and match the expected type and then intiialize the
-// server.
+//go:generate swagger generate server --target=./swagger --spec=./swagger/swagger.yml --exclude-main --name=hello
+// Here we're specifying some flags:
+// --target              the base directory for generating the files;
+// --spec                path to the swagger specification;
+// --exclude-main        generates only the library code and not a 
+//                       sample CLI application;
+// --name                the name of the application.
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
-	"fmt"
 	"time"
-
-	"github.com/alexflint/go-arg"
 
 	"github.com/slonegd-otus-go/swaggertest/swagger/restapi"
 	"github.com/slonegd-otus-go/swaggertest/swagger/restapi/operations"
@@ -20,19 +20,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 )
 
-type cliArgs struct {
-	Port int `arg:"-p,help:port to listen to"`
-}
-
-var (
-	args = &cliArgs{
-		Port: 8080,
-	}
-)
-
 func main() {
-	arg.MustParse(args)
-
 	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -42,7 +30,7 @@ func main() {
 	server := restapi.NewServer(api)
 	defer server.Shutdown()
 
-	server.Port = args.Port
+	server.Port = 8080
 
 	// Implement the handler functionality.
 	// As all we need to do is give an implementation to the interface
@@ -52,6 +40,7 @@ func main() {
 	api.GetHostnameHandler = operations.GetHostnameHandlerFunc(
 		func(params operations.GetHostnameParams) middleware.Responder {
 			response, _ := os.Hostname()
+			response = fmt.Sprintf("host: %s\n", response)
 			return operations.NewGetHostnameOK().WithPayload(response)
 		})
 
@@ -61,8 +50,7 @@ func main() {
 			return operations.NewGetTimeOK().WithPayload(response)
 		})
 
-	// Start listening using having the handlers and port
-	// already set up.
+	// Start listening using having the handlers and port already set up.
 	if err := server.Serve(); err != nil {
 		log.Fatalln(err)
 	}

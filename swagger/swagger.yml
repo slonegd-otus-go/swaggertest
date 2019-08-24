@@ -1,3 +1,4 @@
+# swagger validate ./swagger/swagger.yml
 swagger: "2.0"
 info:
   title: 'Hello'

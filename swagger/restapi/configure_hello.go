@@ -38,6 +38,11 @@ func configureAPI(api *operations.HelloAPI) http.Handler {
 			return middleware.NotImplemented("operation .GetHostname has not yet been implemented")
 		})
 	}
+	if api.GetTimeHandler == nil {
+		api.GetTimeHandler = operations.GetTimeHandlerFunc(func(params operations.GetTimeParams) middleware.Responder {
+			return middleware.NotImplemented("operation .GetTime has not yet been implemented")
+		})
+	}
 
 	api.ServerShutdown = func() {}
 
