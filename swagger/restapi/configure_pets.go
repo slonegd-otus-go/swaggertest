@@ -11,15 +11,16 @@ import (
 	middleware "github.com/go-openapi/runtime/middleware"
 
 	"github.com/slonegd-otus-go/swaggertest/swagger/restapi/operations"
+	"github.com/slonegd-otus-go/swaggertest/swagger/restapi/operations/pet"
 )
 
-//go:generate swagger generate server --target ../../swagger --name Hello --spec ../swagger.yml --exclude-main
+//go:generate swagger generate server --target ../../swagger --name Pets --spec ../swagger.yml --exclude-main
 
-func configureFlags(api *operations.HelloAPI) {
+func configureFlags(api *operations.PetsAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
 
-func configureAPI(api *operations.HelloAPI) http.Handler {
+func configureAPI(api *operations.PetsAPI) http.Handler {
 	// configure the api here
 	api.ServeError = errors.ServeError
 
@@ -31,16 +32,21 @@ func configureAPI(api *operations.HelloAPI) http.Handler {
 
 	api.JSONConsumer = runtime.JSONConsumer()
 
-	api.TxtProducer = runtime.TextProducer()
+	api.JSONProducer = runtime.JSONProducer()
 
-	if api.GetHostnameHandler == nil {
-		api.GetHostnameHandler = operations.GetHostnameHandlerFunc(func(params operations.GetHostnameParams) middleware.Responder {
-			return middleware.NotImplemented("operation .GetHostname has not yet been implemented")
+	if api.PetCreateHandler == nil {
+		api.PetCreateHandler = pet.CreateHandlerFunc(func(params pet.CreateParams) middleware.Responder {
+			return middleware.NotImplemented("operation pet.Create has not yet been implemented")
 		})
 	}
-	if api.GetTimeHandler == nil {
-		api.GetTimeHandler = operations.GetTimeHandlerFunc(func(params operations.GetTimeParams) middleware.Responder {
-			return middleware.NotImplemented("operation .GetTime has not yet been implemented")
+	if api.PetGetHandler == nil {
+		api.PetGetHandler = pet.GetHandlerFunc(func(params pet.GetParams) middleware.Responder {
+			return middleware.NotImplemented("operation pet.Get has not yet been implemented")
+		})
+	}
+	if api.PetListHandler == nil {
+		api.PetListHandler = pet.ListHandlerFunc(func(params pet.ListParams) middleware.Responder {
+			return middleware.NotImplemented("operation pet.List has not yet been implemented")
 		})
 	}
 

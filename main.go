@@ -1,20 +1,19 @@
-//go:generate swagger generate server --target=./swagger --spec=./swagger/swagger.yml --exclude-main --name=hello
+//go:generate swagger generate server --target=./swagger --spec=./swagger/swagger.yml --exclude-main
 // Here we're specifying some flags:
 // --target              the base directory for generating the files;
 // --spec                path to the swagger specification;
-// --exclude-main        generates only the library code and not a 
+// --exclude-main        generates only the library code and not a
 //                       sample CLI application;
 // --name                the name of the application.
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
-	"time"
 
+	"github.com/slonegd-otus-go/swaggertest/swagger/models"
 	"github.com/slonegd-otus-go/swaggertest/swagger/restapi"
 	"github.com/slonegd-otus-go/swaggertest/swagger/restapi/operations"
+	apipet "github.com/slonegd-otus-go/swaggertest/swagger/restapi/operations/pet"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime/middleware"
@@ -26,28 +25,38 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	api := operations.NewHelloAPI(swaggerSpec)
+	api := operations.NewPetsAPI(swaggerSpec)
 	server := restapi.NewServer(api)
 	defer server.Shutdown()
 
 	server.Port = 8080
 
-	// Implement the handler functionality.
-	// As all we need to do is give an implementation to the interface
-	// we can just override the `api` method giving it a method with a valid
-	// signature (we didn't need to have this implementation here, it could
-	// even come from a different package).
-	api.GetHostnameHandler = operations.GetHostnameHandlerFunc(
-		func(params operations.GetHostnameParams) middleware.Responder {
-			response, _ := os.Hostname()
-			response = fmt.Sprintf("host: %s\n", response)
-			return operations.NewGetHostnameOK().WithPayload(response)
+	var pets []*models.Pet
+	var id int64 = 1
+
+	api.PetCreateHandler = apipet.CreateHandlerFunc(
+		func(params apipet.CreateParams) middleware.Responder {
+			pet := params.Pet
+			pet.ID = id
+			id++
+			pets = append(pets, pet)
+			return apipet.NewCreateCreated()
 		})
 
-	api.GetTimeHandler = operations.GetTimeHandlerFunc(
-		func(params operations.GetTimeParams) middleware.Responder {
-			response := fmt.Sprintf("текущее время: %s\n", time.Now())
-			return operations.NewGetTimeOK().WithPayload(response)
+	api.PetListHandler = apipet.ListHandlerFunc(
+		func(params apipet.ListParams) middleware.Responder {
+			// TODO тут в параметрах фильтр по Kind
+			return apipet.NewListOK().WithPayload(pets)
+		})
+
+	api.PetGetHandler = apipet.GetHandlerFunc(
+		func(params apipet.GetParams) middleware.Responder {
+			for _, pet := range pets {
+				if pet.ID == params.PetID {
+					return apipet.NewGetOK().WithPayload(pet)
+				}
+			}
+			return apipet.NewGetNotFound()
 		})
 
 	// Start listening using having the handlers and port already set up.

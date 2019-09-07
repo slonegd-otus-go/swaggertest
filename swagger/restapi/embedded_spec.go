@@ -18,86 +18,252 @@ var (
 
 func init() {
 	SwaggerJSON = json.RawMessage([]byte(`{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
   "swagger": "2.0",
   "info": {
-    "title": "Hello",
-    "version": "0.0.1"
+    "title": "Pets",
+    "version": "1.0.0"
   },
+  "basePath": "/example",
   "paths": {
-    "/hostname": {
+    "/pets": {
       "get": {
-        "produces": [
-          "text/plain"
+        "tags": [
+          "pet"
         ],
-        "operationId": "getHostname",
+        "operationId": "List",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "kind",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "returns the hostname of the machine",
+            "description": "Pet list",
             "schema": {
-              "description": "the hostname of the machine",
-              "type": "string"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Pet"
+              }
             }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "pet"
+        ],
+        "operationId": "Create",
+        "parameters": [
+          {
+            "name": "pet",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Pet"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Pet Created",
+            "schema": {
+              "$ref": "#/definitions/Pet"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
         }
       }
     },
-    "/time": {
+    "/pets/{petId}": {
       "get": {
-        "produces": [
-          "text/plain"
+        "tags": [
+          "pet"
         ],
-        "operationId": "getTime",
+        "operationId": "Get",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "petId",
+            "in": "path",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
-            "description": "returns the time of the machine",
+            "description": "Pet get",
             "schema": {
-              "description": "the time of the machine",
-              "type": "string"
+              "$ref": "#/definitions/Pet"
             }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Pet Not Found"
           }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Pet": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "kind": {
+          "type": "string",
+          "example": "dog"
+        },
+        "name": {
+          "type": "string",
+          "example": "Bobby"
         }
       }
     }
   }
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
   "swagger": "2.0",
   "info": {
-    "title": "Hello",
-    "version": "0.0.1"
+    "title": "Pets",
+    "version": "1.0.0"
   },
+  "basePath": "/example",
   "paths": {
-    "/hostname": {
+    "/pets": {
       "get": {
-        "produces": [
-          "text/plain"
+        "tags": [
+          "pet"
         ],
-        "operationId": "getHostname",
+        "operationId": "List",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "kind",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "returns the hostname of the machine",
+            "description": "Pet list",
             "schema": {
-              "description": "the hostname of the machine",
-              "type": "string"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Pet"
+              }
             }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "pet"
+        ],
+        "operationId": "Create",
+        "parameters": [
+          {
+            "name": "pet",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Pet"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Pet Created",
+            "schema": {
+              "$ref": "#/definitions/Pet"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
         }
       }
     },
-    "/time": {
+    "/pets/{petId}": {
       "get": {
-        "produces": [
-          "text/plain"
+        "tags": [
+          "pet"
         ],
-        "operationId": "getTime",
+        "operationId": "Get",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "petId",
+            "in": "path",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
-            "description": "returns the time of the machine",
+            "description": "Pet get",
             "schema": {
-              "description": "the time of the machine",
-              "type": "string"
+              "$ref": "#/definitions/Pet"
             }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Pet Not Found"
           }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Pet": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "kind": {
+          "type": "string",
+          "example": "dog"
+        },
+        "name": {
+          "type": "string",
+          "example": "Bobby"
         }
       }
     }

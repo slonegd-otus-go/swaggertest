@@ -2,7 +2,11 @@
 
 всё отсюда https://ops.tips/blog/a-swagger-golang-hello-world/
 
-## команды для проверки
-curl localhost:8080/hostname
+интереснее https://posener.github.io/openapi-intro/#example
 
-curl localhost:8080/time
+## команды для проверки
+список curl localhost:8080/pets/
+
+один curl localhost:8080/pets/0
+
+добавить curl -d '{"Kind":"dog", "Name":"Roma"}' -H "Content-Type: application/json" -X POST http://localhost:8080/pets/

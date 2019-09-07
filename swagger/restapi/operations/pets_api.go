@@ -18,11 +18,13 @@ import (
 	spec "github.com/go-openapi/spec"
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+
+	"github.com/slonegd-otus-go/swaggertest/swagger/restapi/operations/pet"
 )
 
-// NewHelloAPI creates a new Hello instance
-func NewHelloAPI(spec *loads.Document) *HelloAPI {
-	return &HelloAPI{
+// NewPetsAPI creates a new Pets instance
+func NewPetsAPI(spec *loads.Document) *PetsAPI {
+	return &PetsAPI{
 		handlers:            make(map[string]map[string]http.Handler),
 		formats:             strfmt.Default,
 		defaultConsumes:     "application/json",
@@ -36,18 +38,21 @@ func NewHelloAPI(spec *loads.Document) *HelloAPI {
 		APIKeyAuthenticator: security.APIKeyAuth,
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
-		TxtProducer:         runtime.TextProducer(),
-		GetHostnameHandler: GetHostnameHandlerFunc(func(params GetHostnameParams) middleware.Responder {
-			return middleware.NotImplemented("operation GetHostname has not yet been implemented")
+		JSONProducer:        runtime.JSONProducer(),
+		PetCreateHandler: pet.CreateHandlerFunc(func(params pet.CreateParams) middleware.Responder {
+			return middleware.NotImplemented("operation PetCreate has not yet been implemented")
 		}),
-		GetTimeHandler: GetTimeHandlerFunc(func(params GetTimeParams) middleware.Responder {
-			return middleware.NotImplemented("operation GetTime has not yet been implemented")
+		PetGetHandler: pet.GetHandlerFunc(func(params pet.GetParams) middleware.Responder {
+			return middleware.NotImplemented("operation PetGet has not yet been implemented")
+		}),
+		PetListHandler: pet.ListHandlerFunc(func(params pet.ListParams) middleware.Responder {
+			return middleware.NotImplemented("operation PetList has not yet been implemented")
 		}),
 	}
 }
 
-/*HelloAPI the hello API */
-type HelloAPI struct {
+/*PetsAPI the pets API */
+type PetsAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context
 	handlers        map[string]map[string]http.Handler
@@ -71,13 +76,15 @@ type HelloAPI struct {
 	// JSONConsumer registers a consumer for a "application/json" mime type
 	JSONConsumer runtime.Consumer
 
-	// TxtProducer registers a producer for a "text/plain" mime type
-	TxtProducer runtime.Producer
+	// JSONProducer registers a producer for a "application/json" mime type
+	JSONProducer runtime.Producer
 
-	// GetHostnameHandler sets the operation handler for the get hostname operation
-	GetHostnameHandler GetHostnameHandler
-	// GetTimeHandler sets the operation handler for the get time operation
-	GetTimeHandler GetTimeHandler
+	// PetCreateHandler sets the operation handler for the create operation
+	PetCreateHandler pet.CreateHandler
+	// PetGetHandler sets the operation handler for the get operation
+	PetGetHandler pet.GetHandler
+	// PetListHandler sets the operation handler for the list operation
+	PetListHandler pet.ListHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -95,58 +102,62 @@ type HelloAPI struct {
 }
 
 // SetDefaultProduces sets the default produces media type
-func (o *HelloAPI) SetDefaultProduces(mediaType string) {
+func (o *PetsAPI) SetDefaultProduces(mediaType string) {
 	o.defaultProduces = mediaType
 }
 
 // SetDefaultConsumes returns the default consumes media type
-func (o *HelloAPI) SetDefaultConsumes(mediaType string) {
+func (o *PetsAPI) SetDefaultConsumes(mediaType string) {
 	o.defaultConsumes = mediaType
 }
 
 // SetSpec sets a spec that will be served for the clients.
-func (o *HelloAPI) SetSpec(spec *loads.Document) {
+func (o *PetsAPI) SetSpec(spec *loads.Document) {
 	o.spec = spec
 }
 
 // DefaultProduces returns the default produces media type
-func (o *HelloAPI) DefaultProduces() string {
+func (o *PetsAPI) DefaultProduces() string {
 	return o.defaultProduces
 }
 
 // DefaultConsumes returns the default consumes media type
-func (o *HelloAPI) DefaultConsumes() string {
+func (o *PetsAPI) DefaultConsumes() string {
 	return o.defaultConsumes
 }
 
 // Formats returns the registered string formats
-func (o *HelloAPI) Formats() strfmt.Registry {
+func (o *PetsAPI) Formats() strfmt.Registry {
 	return o.formats
 }
 
 // RegisterFormat registers a custom format validator
-func (o *HelloAPI) RegisterFormat(name string, format strfmt.Format, validator strfmt.Validator) {
+func (o *PetsAPI) RegisterFormat(name string, format strfmt.Format, validator strfmt.Validator) {
 	o.formats.Add(name, format, validator)
 }
 
-// Validate validates the registrations in the HelloAPI
-func (o *HelloAPI) Validate() error {
+// Validate validates the registrations in the PetsAPI
+func (o *PetsAPI) Validate() error {
 	var unregistered []string
 
 	if o.JSONConsumer == nil {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
 
-	if o.TxtProducer == nil {
-		unregistered = append(unregistered, "TxtProducer")
+	if o.JSONProducer == nil {
+		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.GetHostnameHandler == nil {
-		unregistered = append(unregistered, "GetHostnameHandler")
+	if o.PetCreateHandler == nil {
+		unregistered = append(unregistered, "pet.CreateHandler")
 	}
 
-	if o.GetTimeHandler == nil {
-		unregistered = append(unregistered, "GetTimeHandler")
+	if o.PetGetHandler == nil {
+		unregistered = append(unregistered, "pet.GetHandler")
+	}
+
+	if o.PetListHandler == nil {
+		unregistered = append(unregistered, "pet.ListHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -157,26 +168,26 @@ func (o *HelloAPI) Validate() error {
 }
 
 // ServeErrorFor gets a error handler for a given operation id
-func (o *HelloAPI) ServeErrorFor(operationID string) func(http.ResponseWriter, *http.Request, error) {
+func (o *PetsAPI) ServeErrorFor(operationID string) func(http.ResponseWriter, *http.Request, error) {
 	return o.ServeError
 }
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
-func (o *HelloAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
+func (o *PetsAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
 
 	return nil
 
 }
 
 // Authorizer returns the registered authorizer
-func (o *HelloAPI) Authorizer() runtime.Authorizer {
+func (o *PetsAPI) Authorizer() runtime.Authorizer {
 
 	return nil
 
 }
 
 // ConsumersFor gets the consumers for the specified media types
-func (o *HelloAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer {
+func (o *PetsAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer {
 
 	result := make(map[string]runtime.Consumer)
 	for _, mt := range mediaTypes {
@@ -196,14 +207,14 @@ func (o *HelloAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer
 }
 
 // ProducersFor gets the producers for the specified media types
-func (o *HelloAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer {
+func (o *PetsAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer {
 
 	result := make(map[string]runtime.Producer)
 	for _, mt := range mediaTypes {
 		switch mt {
 
-		case "text/plain":
-			result["text/plain"] = o.TxtProducer
+		case "application/json":
+			result["application/json"] = o.JSONProducer
 
 		}
 
@@ -216,7 +227,7 @@ func (o *HelloAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer
 }
 
 // HandlerFor gets a http.Handler for the provided operation method and path
-func (o *HelloAPI) HandlerFor(method, path string) (http.Handler, bool) {
+func (o *PetsAPI) HandlerFor(method, path string) (http.Handler, bool) {
 	if o.handlers == nil {
 		return nil, false
 	}
@@ -231,8 +242,8 @@ func (o *HelloAPI) HandlerFor(method, path string) (http.Handler, bool) {
 	return h, ok
 }
 
-// Context returns the middleware context for the hello API
-func (o *HelloAPI) Context() *middleware.Context {
+// Context returns the middleware context for the pets API
+func (o *PetsAPI) Context() *middleware.Context {
 	if o.context == nil {
 		o.context = middleware.NewRoutableContext(o.spec, o, nil)
 	}
@@ -240,28 +251,33 @@ func (o *HelloAPI) Context() *middleware.Context {
 	return o.context
 }
 
-func (o *HelloAPI) initHandlerCache() {
+func (o *PetsAPI) initHandlerCache() {
 	o.Context() // don't care about the result, just that the initialization happened
 
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/hostname"] = NewGetHostname(o.context, o.GetHostnameHandler)
+	o.handlers["POST"]["/pets"] = pet.NewCreate(o.context, o.PetCreateHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/time"] = NewGetTime(o.context, o.GetTimeHandler)
+	o.handlers["GET"]["/pets/{petId}"] = pet.NewGet(o.context, o.PetGetHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/pets"] = pet.NewList(o.context, o.PetListHandler)
 
 }
 
 // Serve creates a http handler to serve the API over HTTP
 // can be used directly in http.ListenAndServe(":8000", api.Serve(nil))
-func (o *HelloAPI) Serve(builder middleware.Builder) http.Handler {
+func (o *PetsAPI) Serve(builder middleware.Builder) http.Handler {
 	o.Init()
 
 	if o.Middleware != nil {
@@ -271,18 +287,18 @@ func (o *HelloAPI) Serve(builder middleware.Builder) http.Handler {
 }
 
 // Init allows you to just initialize the handler cache, you can then recompose the middleware as you see fit
-func (o *HelloAPI) Init() {
+func (o *PetsAPI) Init() {
 	if len(o.handlers) == 0 {
 		o.initHandlerCache()
 	}
 }
 
 // RegisterConsumer allows you to add (or override) a consumer for a media type.
-func (o *HelloAPI) RegisterConsumer(mediaType string, consumer runtime.Consumer) {
+func (o *PetsAPI) RegisterConsumer(mediaType string, consumer runtime.Consumer) {
 	o.customConsumers[mediaType] = consumer
 }
 
 // RegisterProducer allows you to add (or override) a producer for a media type.
-func (o *HelloAPI) RegisterProducer(mediaType string, producer runtime.Producer) {
+func (o *PetsAPI) RegisterProducer(mediaType string, producer runtime.Producer) {
 	o.customProducers[mediaType] = producer
 }

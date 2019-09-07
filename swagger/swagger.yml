@@ -1,28 +1,78 @@
 # swagger validate ./swagger/swagger.yml
-swagger: "2.0"
+swagger: '2.0'
 info:
-  title: 'Hello'
-  version: '0.0.1'
+  version: '1.0.0'
+  title: Pets
+schemes: [http]
+# host: example.org
+basePath: /example
+consumes: [application/json]
+produces: [application/json]
 paths:
-  /hostname:
+  /pets:
+    post:
+      tags: [pet]
+      operationId: Create
+      parameters:
+      - in: body
+        name: pet
+        required: true
+        schema:
+          $ref: '#/definitions/Pet'
+      responses:
+        201:
+          description: Pet Created
+          schema:
+            $ref: '#/definitions/Pet'
+        400:
+          description: Bad Request
     get:
-      operationId: 'getHostname'
-      produces:
-      - 'text/plain'
+      tags: [pet]
+      operationId: List
+      parameters:
+      - in: query
+        name: kind
+        type: string
       responses:
         200:
-          description: 'returns the hostname of the machine'
+          description: 'Pet list'
           schema:
-            description: 'the hostname of the machine'
-            type: 'string'
-  /time:
-      get:
-        operationId: 'getTime'
-        produces:
-        - 'text/plain'
-        responses:
-          200:
-            description: 'returns the time of the machine'
-            schema:
-              description: 'the time of the machine'
-              type: 'string'
+            type: array
+            items:
+                $ref: '#/definitions/Pet'
+  /pets/{petId}:
+    get:
+      tags: [pet]
+      operationId: Get
+      parameters:
+      - name: petId
+        in: path
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: Pet get
+          schema:
+            $ref: '#/definitions/Pet'
+        400:
+          description: Bad Request
+        404:
+          description: Pet Not Found
+
+definitions:
+  Pet:
+    type: object
+    required:
+    - name
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      kind:
+        type: string
+        example: dog
+      name:
+        type: string
+        example: Bobby
